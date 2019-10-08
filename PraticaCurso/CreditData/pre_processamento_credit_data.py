@@ -6,12 +6,15 @@ Created on Thurs Out 3 22:49 2019
 """
 # Importa a biblioteca panda
 import pandas as pd
-
+import numpy as np
 # Importa a base de dados
 base = pd.read_csv('creditData.csv')
 
 # Traz algumas metricas da variavel (Nesse caso da base de dados)
 base.describe()
+
+
+# TRATAR DADOS INCONSISTENTES
 
 # Depois de descoberto uma inconsistencia (Negative Age). Vamos achar esses caras
 
@@ -37,3 +40,26 @@ base['age'].mean() # Traz a media da coluna especifica
 base['age'][base.age > 0].mean() # Traz a media da coluna especifica de acordo com a condicao
 
 base.loc[base.age < 0, 'age'] = 40.92
+
+# TRATAR DADOS FALTANTES
+
+pd.isnull(base['age'])
+base.loc[pd.isnull(base['age'])]
+
+previsores = base.iloc[:, 1:4].values # Armazenando os valores Previsores em uma variavel
+classe = base.iloc[:, 4].values # Armazenando os valores Metas em uma variavel
+    
+# Tratando os valores Nulls da base de dados
+from sklearn.impute import SimpleImputer
+
+SimpleImputer = SimpleImputer(missing_values=np.nan, strategy='mean')  # Pega todos os valores NUlls e substitui pela média  
+SimpleImputer = SimpleImputer.fit(previsores[:, 0:3])
+previsores[:, 0:3] = SimpleImputer.transform(previsores[:, 0:3])
+
+#ESCALONAMENTO DE ATRIBUTOS
+
+#Vamos usar a estrategia de Standardisation(Padronização) para tratar a diferença de escala entre os dados
+
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+previsores = scaler.fit_transform(previsores)
